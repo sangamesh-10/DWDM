@@ -1,6 +1,12 @@
 import java.util.*;
+import java.io.*;
+import java.lang.*;
+
+
+// Refernce:: https://www.geeksforgeeks.org/ml-frequent-pattern-growth-algorithm/ 
 public class Prgrm7 
 {
+
     private static class FPNode {
         private String item;
         private int frequency;
@@ -12,6 +18,26 @@ public class Prgrm7
             this.frequency = frequency;
             this.parent = parent;
             this.children = new ArrayList<>();
+        }
+
+        public String toString(){
+            String result = "";
+            result += ("Name:: " + item + " | ");
+            result += ("Frequency:: " + frequency);
+            // System.out.println("ParentName:: " + parent.getItem());
+            return result;
+        }
+
+        public FPNode getChildWithName(String name){
+            for(FPNode child: children){
+                if(child==null){
+                    continue;
+                }
+                if(child.getItem().equals(name)){
+                    return child;
+                }
+            }
+            return null;
         }
 
         public String getItem() {
@@ -38,120 +64,144 @@ public class Prgrm7
             children.add(child);
         }
     }
+    
     private static class FPTree {
         private FPNode root;
-        private Map<String, List<FPNode>> headerTable;
+        
+        public void minePatterns(){
 
-        public FPTree() {
-            root = new FPNode(null, 0, null);
-            headerTable = new HashMap<>();
+        }
+
+        public List<FPNode> getLeaves(){
+            List<FPNode> ans = new ArrayList<FPNode>();
+
+            // HashSet<FPNode> visited = new HashSet<FPNode>();
+            LinkedList<FPNode> queue = new LinkedList<>();
+            
+            queue.addLast(root);
+
+            while(queue.size() != 0){
+                FPNode curr = queue.removeFirst();
+
+                if(curr.getChildren().size()==0){
+                    ans.add(curr);
+                }
+                else{
+                    List<FPNode> children = curr.getChildren();
+                    for(FPNode child : children){
+                        queue.addLast(child);
+                    }
+                }
+                
+            }
+
+
+            return ans;
+        }
+
+        public List<FPNode> getNodesWithName(String name){
+            // FPNode curr = root;
+            List<FPNode> ans = new ArrayList<FPNode>();
+
+            // HashSet<FPNode> visited = new HashSet<FPNode>();
+            LinkedList<FPNode> queue = new LinkedList<>();
+            
+            queue.addLast(root);
+
+            while(queue.size() != 0){
+                FPNode curr = queue.removeFirst();
+
+                if(curr.item.equals(name)){
+                    ans.add(curr);
+                }
+                else{
+                    List<FPNode> children = curr.getChildren();
+                    for(FPNode child : children){
+                        queue.addLast(child);
+                    }
+                }
+                
+            }
+
+
+            return ans;
+        }
+
+        public FPTree(FPNode root) {
+            this.root = root;
         }
 
         public FPNode getRoot() {
             return root;
         }
 
-        public Map<String, List<FPNode>> getHeaderTable() {
-            return headerTable;
+
+        public void printFullTree() {
+            printTreeFromNode(root, "");
         }
 
-        public void addTransaction(List<String> transaction) {
-            FPNode currentNode = root;
-
-            for (String item : transaction) {
-                FPNode child = currentNode.getChildren()
-                        .stream()
-                        .filter(c -> c.getItem().equals(item))
-                        .findFirst()
-                        .orElse(null);
-
-                if (child == null) {
-                    child = new FPNode(item, 1, currentNode);
-                    currentNode.addChild(child);
-
-                    // Update header table
-                    List<FPNode> nodes = headerTable.getOrDefault(item, new ArrayList<>());
-                    nodes.add(child);
-                    headerTable.put(item, nodes);
-                } else {
-                    child.incrementFrequency();
-                }
-
-                currentNode = child;
-            }
-        }
-        public void print() {
-            print(root, "");
-        }
-
-        private void print(FPNode node, String indent) {
-            System.out.println(indent + node.getItem() + " " + node.getFrequency());
+        private void printTreeFromNode(FPNode node, String indent) {
+            System.out.println(indent + node.getItem() + "::" + node.getFrequency());
 
             for (FPNode child : node.getChildren()) {
-                print(child, indent + " ");
+                printTreeFromNode(child, indent + "\t");
             }
         }
-    }
-    public static LinkedHashMap<String, Integer> sortHashMapByValue(HashMap<String, Integer> hashmap) {
-        List<Map.Entry<String, Integer>> sortedEntries = new ArrayList<>(hashmap.entrySet());
-        Collections.sort(sortedEntries, new Comparator<Map.Entry<String, Integer>>() {
-            public int compare(Map.Entry<String, Integer> entry1, Map.Entry<String, Integer> entry2) {
-                return entry2.getValue().compareTo(entry1.getValue());
+
+        public List<String> getAncestorNames(FPNode node) {
+            List<String> ans = new ArrayList<String>();
+
+            FPNode curr = node.getParent();
+            while(!curr.getItem().equals("Null")){
+                ans.add(curr.getItem());
+                curr = curr.getParent();
             }
-        });
-        LinkedHashMap<String, Integer> sortedMap = new LinkedHashMap<>();
-        for (Map.Entry<String, Integer> entry : sortedEntries) {
-            sortedMap.put(entry.getKey(), entry.getValue());
+
+            return ans;
         }
-        return sortedMap;
     }
-    public static List<List<String>> sortingtrans(List<List<String>> transactions,LinkedHashMap<String,Integer> lorder)
-    {
-        for(List items:transactions)
-        {
-            for(int i=0;i<items.size();i++)
-            {
-                for(int j=i+1;j<items.size();j++)
-                {
-                    if(lorder.get(items.get(i))< lorder.get(items.get(j)))
-                    {
-                        String t1=items.get(i).toString();
-                        String t2=items.get(j).toString();
-                        items.set(i, t2);
-                        items.set(j,t1);
-                    }
-                }
-            }
-        }
-        return transactions;
-    }
-    public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		System.out.println("enter the no of transactions to be recorded : ");
-		int t_no = sc.nextInt();
-		System.out.println("Enter the transactions with comma seperated items :");
-		String[] transactions = new String[t_no];
-		for (int i = 0; i < t_no; i++) {
-			transactions[i] = sc.next();
-		}
-		System.out.println("Enter the minimum support:");
-		int min_support = sc.nextInt();
-		List<String> unique_items = new ArrayList<>();
-		List<List<String>> transactionList = new ArrayList();
+    
+    public static List<List<String>> generateTransactionList(String[] transactions){
+        // List<String> uniqueItems = new ArrayList<>();
+		List<List<String>> transactionList = new ArrayList<>();
+        int t_no = transactions.length;
 		for (int ptr = 0; ptr < t_no; ptr++) {
 			String[] splitted = transactions[ptr].split(",");
 			List<String> oneTransaction = new ArrayList<String>();
 			for (String item : splitted) {
 				oneTransaction.add(item);
-				if (unique_items.contains(item) == false) {
-					unique_items.add(item);
-				}
+				
 			}
 			transactionList.add((oneTransaction));
 		}
-		unique_items.sort(null);
-        HashMap<String,Integer> hm=new HashMap<>();
-        for( String item:unique_items)
+
+        return transactionList;
+    }
+
+    public static List<String> generateUniqueItems(List<List<String>> transactionList){
+        List<String> uniqueItems = new ArrayList<>();
+
+        int t_no = transactionList.size();
+		for (int ptr = 0; ptr < t_no; ptr++) {
+			
+            List<String> transaction = transactionList.get(ptr);
+			for (String item : transaction) {
+				
+				if (uniqueItems.contains(item) == false) {
+					uniqueItems.add(item);
+				}
+			}
+		}
+
+        return uniqueItems;
+    }
+
+    public static HashMap<String, Integer> generateHashMap(List<List<String>> transactionList, List<String> uniqueItems){
+        // List<String> uniqueItems = generateUniqueItems(transactionList);
+        
+        
+        HashMap<String, Integer> hm = new HashMap<>();
+        for( String item:uniqueItems)
         {
             hm.put(item,0);
         }
@@ -167,61 +217,192 @@ public class Prgrm7
             }
             hm.replace(item.getKey(),count);
         }
-        System.out.print(hm);
-        LinkedHashMap<String,Integer> lorder=sortHashMapByValue(hm);
-        transactionList=sortingtrans(transactionList, lorder);
-        System.out.println(transactionList);
-        FPTree tree = new FPTree();
-        for (List<String> transaction : transactionList) {
-            tree.addTransaction(transaction);
-        }
-        List<List<String>> frequentItemSets = new ArrayList<>();
-        List<String> prefix = new ArrayList<>();
-        List<String> rLorder = new ArrayList(lorder.keySet());
-        Collections.reverse(rLorder);
-        mineFrequentItemSets(tree, min_support, frequentItemSets, prefix);
-        // System.out.println(rLorder);
-        // Print frequent item sets
-        System.out.println(tree.getHeaderTable().keySet());
-        // System.out.println("Frequent Item Sets (support >= " + min_support + "):");
-        // for (List<String> itemSet : frequentItemSets) {
-        //     System.out.println(itemSet.toString());
-        // }
+        // System.out.println(hm);
+        return hm;
+
+    }
+    public static void main(String[] args) throws Exception{
+		// Scanner sc = new Scanner(new File("fpInput.txt"));
+        Scanner sc = new Scanner(System.in);
+		System.out.println("enter the no of transactions to be recorded : ");
+		int t_no = sc.nextInt();
+		System.out.println("Enter the transactions with comma seperated items :");
+		String[] transactions = new String[t_no];
+		for (int i = 0; i < t_no; i++) {
+			transactions[i] = sc.next();
+		}
+		System.out.println("Enter the minimum support:");
+		int minSupport = sc.nextInt();
+		
+		
+        List<List<String>> transactionList = generateTransactionList(transactions);
+        List<String> uniqueItems = generateUniqueItems(transactionList);
+        HashMap<String,Integer> hm = generateHashMap(transactionList, uniqueItems);
+        
+        List<String> minSupportSatisfiedUniqueItems = uniqueItems
+                                                        .stream()
+                                                        .filter(s -> hm.get(s) >= minSupport)
+                                                        .toList();
+
+
+        FPTree fpTree = generateFPTree(transactionList, hm, minSupport);
+
+        // System.out.println(generateSubSets(Arrays.asList(new String[] {"a", "b", "c"})));
+        fpTree.printFullTree();
+
+        HashMap<String, List<List<String>>> conditionalPatternBase = generateConditionalPatternBase(minSupportSatisfiedUniqueItems, fpTree);
+
+        // System.out.println(conditionalPatternBase);
+
+        HashMap<String, HashMap<List<String>, Integer>> conditionalFrequentPatternTree = new HashMap<String, HashMap<List<String>, Integer>>();
+        
+        HashMap<String, HashMap<List<String>, Integer>> frequentPatterns = new HashMap<String, HashMap<List<String>, Integer>>();
+        for(String item: minSupportSatisfiedUniqueItems){
+            List<List<String>> itemTransactionList = conditionalPatternBase.get(item);
+            
+            List<String> itemUniqueItems = generateUniqueItems(itemTransactionList);
+            HashMap<String, Integer> itemHm = generateHashMap(itemTransactionList, itemUniqueItems);
+            FPTree itemFPTree = generateFPTree(itemTransactionList, itemHm, minSupport);
+            // itemFPTree.printFullTree();
+            List<String> itemMinSupportSatisfiedUniqueItems = itemUniqueItems
+                                                                .stream()
+                                                                .filter(s-> itemHm.get(s) >= minSupport)
+                                                                .toList();
+            
+            // System.out.println(itemMinSupportSatisfiedUniqueItems);
+            for(String i:  itemMinSupportSatisfiedUniqueItems){
+                // System.out.print(i + "::");
+                // System.out.println(itemHm.get(i));
+            }
+
+            List<FPNode> itemNodes = itemFPTree.getNodesWithName(item);
+
+            for(FPNode itemNode: itemNodes){
+                List<String> itemAncestorNames = itemFPTree.getAncestorNames(itemNode);
+                int itemFreq = itemNode.getFrequency();
+                String itemName = itemNode.getItem();
+                List<List<String>> subsets = generateSubSets(itemAncestorNames);
+
+                HashMap<List<String>, Integer> tmpHm = new HashMap<List<String>, Integer>();
+                    
+                for(List<String> subset: subsets){
+                    subset.add(itemName);
+                    tmpHm.put(subset, itemFreq);
+                }
+                frequentPatterns.put(item, tmpHm);                }
+                
+            }
+
+            
+            
+            // conditionalFrequentPatternTree.put(item, )
+                                                                // System.out.print("Item " + item);
+            // System.out.println(itemMinSupportSatisfiedUniqueItems);
+        printFrequentPattern(frequentPatterns);
+
+        sc.close();        
     }
 
-    private static void mineFrequentItemSets(FPTree tree, int minSupport, List<List<String>> frequentItemSets, List<String> prefix) {
-        // Generate conditional pattern base for each item in the header table
-        for (String item : tree.getHeaderTable().keySet()) {
-            List<FPNode> nodes = tree.getHeaderTable().get(item);
-            int frequency = nodes.stream().mapToInt(FPNode::getFrequency).sum();
-    
-            // Check if item is frequent
-            if (frequency < minSupport) {
-                continue;
+    private static void printFrequentPattern(HashMap<String, HashMap<List<String>, Integer>> frequentPatterns) {
+        System.out.println("\n\nPrinting Frequent Patterns");
+        for(Map.Entry<String,HashMap<List<String>,Integer>> entry: frequentPatterns.entrySet()){
+            System.out.println("Item:: " + entry.getKey() + " Frequent Patterns");
+            for(Map.Entry<List<String>, Integer> entry2: entry.getValue().entrySet()){
+                System.out.print("\t");
+                System.out.print(entry2.getKey() + ":: ");
+                System.out.println(entry2.getValue());
             }
-    
-            // Add frequent item set to result list
-            List<String> itemSet = new ArrayList<>(prefix);
-            itemSet.add(item);
-            frequentItemSets.add(itemSet);
-    
-            // Generate conditional pattern base
-            FPTree conditionalTree = new FPTree();
-            for (FPNode node : nodes) {
-                List<String> path = new ArrayList<>();
-                FPNode currentNode = node;
-    
-                while (currentNode.getParent() != null) {
-                    path.add(currentNode.getItem());
-                    currentNode = currentNode.getParent();
-                }
-    
-                Collections.reverse(path);
-                conditionalTree.addTransaction(path.subList(1, path.size()));
-            }
-    
-            // Recursively mine frequent item sets from conditional tree
-            mineFrequentItemSets(conditionalTree, minSupport, frequentItemSets, itemSet);
+            
+            
         }
     }
+
+    private static List<List<String>> generateSubSets(List<String> set){
+        List<List<String>> ans = new ArrayList<List<String>>();
+        recursiveSubSetsGenerator(ans, set, new ArrayList<String>(), 0);
+        return ans;
+    }
+
+    private static void recursiveSubSetsGenerator(List<List<String>> ans, List<String> set, ArrayList<String> output,
+            int i) {
+                
+                if(i==set.size()){
+                    if(output.size()==0){
+                        return;
+                    }
+                    ans.add(output);
+                    return;
+                }
+
+                recursiveSubSetsGenerator(ans, set, new ArrayList<>(output), i+1);
+                output.add(set.get(i));
+                recursiveSubSetsGenerator(ans, set, new ArrayList<>(output), i+1);
+    }
+
+    private static HashMap<String, List<List<String>>> generateConditionalPatternBase(List<String> uniqueItems,
+            FPTree fpTree) {
+                HashMap<String, List<List<String>>> ans = new HashMap<String, List<List<String>>>();
+
+                for(String item: uniqueItems){
+
+
+                    List<FPNode> nodes = fpTree.getNodesWithName(item);
+                    List<List<String>> currentItemTransactionList = new ArrayList<List<String>>();
+                    
+                    for(FPNode node: nodes){
+                        int freq = node.getFrequency();
+                        List<String> ancestorNames = fpTree.getAncestorNames(node);
+                        ancestorNames.add(node.getItem());
+                        for(int i = 0; i < freq; i++){
+                            currentItemTransactionList.add(ancestorNames);
+                        }
+                    }
+
+                    ans.put(item, currentItemTransactionList);
+        
+                }
+                return ans;
+    }
+
+    private static FPTree generateFPTree(List<List<String>> transactionList,
+            HashMap<String, Integer> hm, int minSupport) {
+        FPNode root = new FPNode("Null", 0, null);
+
+        for(List<String> transaction: transactionList){
+            List<String> sortedTransactions = transaction
+                                                        .stream()
+                                                        .filter(s -> hm.get(s) >= minSupport)
+                                                        .sorted(new Comparator<String>(){
+                                                            public int compare(String a, String b){
+                                                                return hm.get(b) - hm.get(a);
+                                                            }
+                                                        })
+                                                        .toList();
+            
+            // System.out.println(transaction);
+            // System.out.println(sortedTransactions);
+            FPNode curr = root;
+            // System.out.println(curr);
+            for(String item: sortedTransactions){
+                FPNode candidate = curr.getChildWithName(item);
+                if(candidate != null){
+                    candidate.incrementFrequency();
+                    // curr = candidate;
+                }
+                else{
+                    candidate = new FPNode(item, 1, curr);
+                    curr.addChild(candidate);
+                    
+                }
+                curr = candidate;
+            }
+
+        }
+
+        return new FPTree(root);
+
+    }
+
+
+    
 }

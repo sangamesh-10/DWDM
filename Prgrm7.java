@@ -263,7 +263,7 @@ public class Prgrm7
             List<String> itemUniqueItems = generateUniqueItems(itemTransactionList);
             HashMap<String, Integer> itemHm = generateHashMap(itemTransactionList, itemUniqueItems);
             FPTree itemFPTree = generateFPTree(itemTransactionList, itemHm, minSupport);
-            itemFPTree.printFullTree();
+            // itemFPTree.printFullTree();
             List<String> itemMinSupportSatisfiedUniqueItems = itemUniqueItems
                                                                 .stream()
                                                                 .filter(s-> itemHm.get(s) >= minSupport)
@@ -304,6 +304,7 @@ public class Prgrm7
     }
 
     private static void printFrequentPattern(HashMap<String, HashMap<List<String>, Integer>> frequentPatterns) {
+        System.out.println("\n\nPrinting Frequent Patterns");
         for(Map.Entry<String,HashMap<List<String>,Integer>> entry: frequentPatterns.entrySet()){
             System.out.println("Item:: " + entry.getKey() + " Frequent Patterns");
             for(Map.Entry<List<String>, Integer> entry2: entry.getValue().entrySet()){

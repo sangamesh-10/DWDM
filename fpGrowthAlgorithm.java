@@ -6,8 +6,8 @@ import java.io.*;
 public class fpGrowthAlgorithm 
 {
     public static void main(String[] args) throws Exception{
-		// Scanner sc = new Scanner(new File("fpInput.txt"));
-        Scanner sc = new Scanner(System.in);
+		Scanner sc = new Scanner(new File("fpInput.txt"));
+        // Scanner sc = new Scanner(System.in);
 		System.out.println("enter the no of transactions to be recorded : ");
 		int t_no = sc.nextInt();
 		System.out.println("Enter the transactions with comma seperated items :");

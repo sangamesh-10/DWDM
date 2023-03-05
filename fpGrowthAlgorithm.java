@@ -38,7 +38,7 @@ public class fpGrowthAlgorithm
 
         // System.out.println(conditionalPatternBase);
 
-        HashMap<String, HashMap<List<String>, Integer>> conditionalFrequentPatternTree = new HashMap<String, HashMap<List<String>, Integer>>();
+        // HashMap<String, HashMap<List<String>, Integer>> conditionalFrequentPatternTree = new HashMap<String, HashMap<List<String>, Integer>>();
         
         HashMap<String, HashMap<List<String>, Integer>> frequentPatterns = new HashMap<String, HashMap<List<String>, Integer>>();
         for(String item: minSupportSatisfiedUniqueItems){
@@ -48,16 +48,16 @@ public class fpGrowthAlgorithm
             HashMap<String, Integer> itemHm = generateHashMap(itemTransactionList, itemUniqueItems);
             FPTree itemFPTree = generateFPTree(itemTransactionList, itemHm, minSupport);
             // itemFPTree.printFullTree();
-            List<String> itemMinSupportSatisfiedUniqueItems = itemUniqueItems
-                                                                .stream()
-                                                                .filter(s-> itemHm.get(s) >= minSupport)
-                                                                .toList();
+            // List<String> itemMinSupportSatisfiedUniqueItems = itemUniqueItems
+            //                                                     .stream()
+            //                                                     .filter(s-> itemHm.get(s) >= minSupport)
+            //                                                     .toList();
             
             // System.out.println(itemMinSupportSatisfiedUniqueItems);
-            for(String i:  itemMinSupportSatisfiedUniqueItems){
-                // System.out.print(i + "::");
-                // System.out.println(itemHm.get(i));
-            }
+            // for(String i:  itemMinSupportSatisfiedUniqueItems){
+            //     // System.out.print(i + "::");
+            //     // System.out.println(itemHm.get(i));
+            // }
 
             List<FPNode> itemNodes = itemFPTree.getNodesWithName(item);
 
@@ -358,7 +358,7 @@ class FPTree {
         while(queue.size() != 0){
             FPNode curr = queue.removeFirst();
 
-            if(curr.item.equals(name)){
+            if(curr.getItem().equals(name)){
                 ans.add(curr);
             }
             else{
